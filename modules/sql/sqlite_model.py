@@ -20,10 +20,11 @@ class EntryType(enum.Enum):
       upload = 12
       events = 13
       warning = 14
+      event = 15
       # brute ratel
-      http_request = 15
-      http_log = 16
-      access_denied = 17	
+      http_request = 16
+      http_log = 17
+      access_denied = 18	
 
 
 Base = declarative_base()

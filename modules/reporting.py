@@ -49,7 +49,7 @@ def report_all_indicators(output):
     entries.sort(key=sort_on_timestamp)
     rows = []
     for entry in entries:
-        rows.append(entry.to_row())
+        rows.append(entry.to_row(redacting=False))
     header = ["Date", "Time", "Hostname", "File", "User", "IP"]
     write_to_csv(os.path.join(output,"ioc-report.csv"), header, rows)
 

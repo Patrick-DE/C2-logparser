@@ -19,7 +19,7 @@ class CSLogParser:
         session_manager = init_db(db_path, debug)
         self.session = session_manager()
         # Track the current command and its accumulated output
-        self.current_command = None
+        self.last_command = None
         self.current_output = ""
         self.is_accumulating_output = False
         # Lock for thread-safe database access
@@ -30,8 +30,12 @@ class CSLogParser:
         match = re.search(r'beacon_(\d+)', filename)
         if match:
             return int(match.group(1))
+        elif "events" in filename or "downloads" in filename:
+            return 0
         else:
-            raise ValueError("Beacon ID could not be extracted from the filename.")
+            #raise ValueError("Beacon ID could not be extracted from the filename.")
+            print(f"Beacon ID could not be extracted from the filename: {filename}")
+            return -1
 
     @staticmethod
     def extract_year_prefix_from_filepath(filepath: str) -> str:
@@ -47,59 +51,67 @@ class CSLogParser:
         parser.parse()
 
     @staticmethod
-    def parse_timestamp(self, timestamp_str: str) -> datetime:
+    def parse_timestamp(year_prefix: str, timestamp_str: str) -> datetime:
         # get the current year
-        return datetime.strptime(self.year_prefix + "/" + timestamp_str, "%y/%m/%d %H:%M:%S %Z")
+        return datetime.strptime(year_prefix + "/" + timestamp_str, "%y/%m/%d %H:%M:%S %Z")
 
 
     def parse(self):
         with open(self.filepath, 'r') as file:
             for line in file:
-                parsed_line = self.parse_line(line)
-                if parsed_line and self.is_accumulating_output and parsed_line['type'] != 'output':
+                current_command = self.parse_line(line)
+                if current_command and self.is_accumulating_output and current_command['type'] != 'output':
                     # store the output of the previous command
-                    self.store_entry_to_db({'type': 'output', 'timestamp': self.current_command['timestamp'], 'timezone': self.current_command["timezone"], 'content': self.current_output.strip()})
-                    self.current_command = parsed_line
-                    self.current_output = ""
-                    self.is_accumulating_output = False
-                if parsed_line:
-                    # Handle metadata separately to store or update beacon information
-                    if parsed_line['type'] == 'metadata':
-                        self.store_beacon_to_db(parsed_line)
-                    # if new command is found, store the new command and the old output
-                    elif parsed_line['type'] == 'input':
-                        # store finished entry with its output
-                        if self.current_output:
-                            self.store_entry_to_db({'type': 'output', 'timestamp': self.current_command['timestamp'], 'timezone': self.current_command["timezone"], 'content': self.current_output.strip()})
-                        
-                        self.store_entry_to_db(parsed_line)
-                        # Reset for the new command
-                        self.current_command = parsed_line
+                    if self.last_command:
+                        self.store_entry_to_db({'type': 'output', 'timestamp': self.last_command['timestamp'], 'timezone': self.last_command["timezone"], 'content': self.current_output.strip()})
                         self.current_output = ""
-                        self.is_accumulating_output = False
-                    elif parsed_line['type'] == 'output' or parsed_line['type'] == 'received_output' or parsed_line['type'] == 'error':
-                        # Accumulate output for the current command
-                        self.is_accumulating_output = True
-                        self.current_output += parsed_line['content']
-                    else:
-                        # Store any other type of entry immediately
-                        if self.current_command and self.current_output:
-                            self.store_entry_to_db({'type': 'output', 'timestamp': self.current_command['timestamp'], 'timezone': self.current_command["timezone"], 'content': self.current_output.strip()})
-                            self.current_command = None
+                    self.is_accumulating_output = False
+                    self.last_command = current_command
+                if current_command:
+                    # Handle metadata separately to store or update beacon information
+                    if current_command['type'] == 'metadata':
+                        self.store_beacon_to_db(current_command)
+                    # if new command is found, store the new command and the old output
+                    elif current_command['type'] == 'input':
+                        # store finished entry with its output
+                        if self.is_accumulating_output:
+                            self.store_entry_to_db({'type': 'output', 'timestamp': self.last_command['timestamp'], 'timezone': self.last_command["timezone"], 'content': self.current_output.strip()})
                             self.current_output = ""
                             self.is_accumulating_output = False
-                        self.store_entry_to_db(parsed_line)
+                        # if self.current_output:
+                        #     self.store_entry_to_db({'type': 'output', 'timestamp': self.current_command['timestamp'], 'timezone': self.current_command["timezone"], 'content': self.current_output.strip()})
+                        
+                        self.store_entry_to_db(current_command)
+                        # Reset for the new command
+                        self.last_command = current_command
+                    elif current_command['type'] == 'output' or current_command['type'] == 'received_output' or current_command['type'] == 'error':
+                        # Accumulate output for the current command
+                        self.is_accumulating_output = True
+                        self.current_output += current_command['content']
+                    else:
+                        # Store any other type of entry immediately
+                        if self.last_command and self.current_output:
+                            self.store_entry_to_db({'type': 'output', 'timestamp': self.last_command['timestamp'], 'timezone': self.last_command["timezone"], 'content': self.current_output.strip()})
+                            self.last_command = None
+                            self.current_output = ""
+                            self.is_accumulating_output = False
+                        self.store_entry_to_db(current_command)
                 else:
                     # add the output to the current command
                     if self.is_accumulating_output:
                         self.current_output += line
                     elif re.match(r'^\s*$', line):
                         continue
+                    elif "events.log" in self.filepath:
+                        pass
                     else:
                         print(f"Could not parse {self.filepath} - {line}")
             # Last line of the file: Store the last command of the file and its output if applicable
             if self.current_output:
-                self.store_entry_to_db({'type': 'output', 'timestamp': self.current_command['timestamp'], 'timezone': self.current_command["timezone"], 'content': self.current_output.strip()})
+                if self.last_command:
+                    self.store_entry_to_db({'type': 'output', 'timestamp': self.last_command['timestamp'], 'timezone': self.last_command["timezone"], 'content': self.current_output.strip()})
+                if current_command:
+                    self.store_entry_to_db({'type': 'output', 'timestamp': current_command['timestamp'], 'timezone': current_command["timezone"], 'content': self.current_output.strip()})
 
     def parse_line(self, line: str) -> Dict:
         # Regular expressions for different log formats
@@ -109,13 +121,14 @@ class CSLogParser:
         task_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[task\] <(?P<operator>.*?)> (?P<task_description>.*)')
         checkin_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[checkin\] host called home, sent: (?P<bytes_sent>\d+) bytes')
         received_output_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[output\]\s*received output:')
-        event_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \*\*\* (?P<event_description>.*)')
-        download_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+))\t(?P<source_ip>[\d\.]+)\t(?P<session_id>\d+)\t(?P<size>\d+)\t(?P<server_path>.+?)\t(?P<file_name>.+?)\t(?P<local_path>.+)')
-        error_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[error\] (?P<error_message>.*)')
+        download_pattern = re.compile(r'^(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+))\t(?P<source_ip>[\d\.]+)\t(?P<session_id>\d+)\t(?P<size>\d+)\t(?P<server_path>[^\t]+)\t(?P<file_name>[^\t]+)\t(?P<local_path>[^\t]*)\r?\n')
         job_registered_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[job_registered\] job registered with id (?P<job_id>\d+)')
         job_completed_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[job_completed\] job (?P<job_id>\d+) completed')
         indicator_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[indicator\] (?P<content>file: (?P<file_hash>\w+) (?P<file_size>\d+) bytes (?P<file_path>.+))')
+        event_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \*\*\* (?P<event_description>.*)')
+        error_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[error\] (?P<error_message>.*)')
         note_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[note\] (?P<note_message>.*)')
+        warning_pattern = re.compile(r'(?P<timestamp>\d{2}/\d{2} \d{2}:\d{2}:\d{2} (?P<timezone>\w+)) \[warning\] (?P<warning_message>.*)')
 
         metadata_match = metadata_pattern.match(line)
         input_match = input_pattern.match(line)
@@ -130,11 +143,12 @@ class CSLogParser:
         job_completed_match = job_completed_pattern.match(line)
         indicator_match = indicator_pattern.match(line)
         note_match = note_pattern.match(line)
+        warning_match = warning_pattern.match(line)
 
         if metadata_match:
             return {
                 'type': 'metadata',
-                'timestamp': self.parse_timestamp(self, metadata_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, metadata_match.group('timestamp')),
                 'ip': metadata_match.group('ip_int'),
                 'ip_ext': metadata_match.group('ip_ext'),
                 'hostname': metadata_match.group('hostname'),
@@ -149,7 +163,7 @@ class CSLogParser:
         elif input_match:
             return {
                 'type': 'input',
-                'timestamp': self.parse_timestamp(self, input_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, input_match.group('timestamp')),
                 'timezone': input_match.group('timezone'),
                 'operator': input_match.group('operator'),
                 'content': input_match.group('command'),
@@ -157,14 +171,14 @@ class CSLogParser:
         elif output_match:
             return {
                 'type': 'output',
-                'timestamp': self.parse_timestamp(self, output_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, output_match.group('timestamp')),
                 'timezone': output_match.group('timezone'),
                 'content': output_match.group('output').strip(),
             }
         elif task_match:
             return {
                 'type': 'task',
-                'timestamp': self.parse_timestamp(self, task_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, task_match.group('timestamp')),
                 'timezone': task_match.group('timezone'),
                 'ttp': task_match.group('operator'),
                 'content': task_match.group('task_description'),
@@ -172,61 +186,65 @@ class CSLogParser:
         elif checkin_match:
             return {
                 'type': 'checkin',
-                'timestamp': self.parse_timestamp(self, checkin_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, checkin_match.group('timestamp')),
                 'timezone': checkin_match.group('timezone'),
                 'content': checkin_match.group('bytes_sent'),
             }
         elif received_output_match:
             return {
                 'type': 'received_output',
-                'timestamp': self.parse_timestamp(self, received_output_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, received_output_match.group('timestamp')),
                 'timezone': received_output_match.group('timezone'),
             }
         elif event_match:
             return {
                 'type': 'event',
-                'timestamp': self.parse_timestamp(self, event_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, event_match.group('timestamp')),
                 'timezone': event_match.group('timezone'),
                 'content': event_match.group('event_description').strip(),
             }
         elif download_match:
             return {
                 'type': 'download',
-                'timestamp': self.parse_timestamp(self, download_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, download_match.group('timestamp')),
                 'timezone': download_match.group('timezone'),
-                'source_ip': download_match.group('source_ip'),
-                'session_id': download_match.group('session_id'),
-                'size': download_match.group('size'),
-                'server_path': download_match.group('server_path'),
-                'file_name': download_match.group('file_name'),
-                'local_path': download_match.group('local_path'),
+                'content': "IP: {}, File: {}{}, Size: {}".format(download_match.group('source_ip'), download_match.group('local_path'), download_match.group('file_name'), download_match.group('size')),
+                #'content': download_match.group('content').strip(),
+                # 'source_ip': download_match.group('source_ip'),
+                # 'session_id': download_match.group('session_id'),
+                # 'size': download_match.group('size'),
+                # 'server_path': download_match.group('server_path'),
+                # 'file_name': download_match.group('file_name'),
+                # 'local_path': download_match.group('local_path'),
             }
         elif error_match:
             return {
                 'type': 'error',
-                'timestamp': self.parse_timestamp(self, error_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, error_match.group('timestamp')),
                 'timezone': error_match.group('timezone'),
                 'content': error_match.group('error_message').strip(),
             }
         elif job_registered_match:
             return {
                 'type': 'job_registered',
-                'timestamp': self.parse_timestamp(self, job_registered_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, job_registered_match.group('timestamp')),
                 'timezone': job_registered_match.group('timezone'),
                 'content': job_registered_match.group('job_id').strip(),
             }
         elif job_completed_match:
             return {
                 'type': 'job_completed',
-                'timestamp': self.parse_timestamp(job_completed_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, job_completed_match.group('timestamp')),
+                'timezone': job_completed_match.group('timezone'),
                 'content': job_completed_match.group('job_id').strip(),
             }
         elif indicator_match:
             return {
                 'type': 'indicator',
-                'timestamp': self.parse_timestamp(indicator_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, indicator_match.group('timestamp')),
                 'timezone': indicator_match.group('timezone'),
-                'content': indicator_match.group('content').strip(),
+                'content': "MD5: {}, File: {}, Size: {}".format(indicator_match.group('file_hash'), indicator_match.group('file_path'), indicator_match.group('file_size')),
+                #'content': indicator_match.group('content').strip(),
                 # 'file_hash': indicator_match.group('file_hash'),
                 # 'file_size': indicator_match.group('file_size'),
                 # 'file_path': indicator_match.group('file_path').strip(),
@@ -234,8 +252,16 @@ class CSLogParser:
         elif note_match:
             return {
                 'type': 'note',
-                'timestamp': self.parse_timestamp(note_match.group('timestamp')),
+                'timestamp': self.parse_timestamp(self.year_prefix, note_match.group('timestamp')),
+                'timezone': note_match.group('timezone'),
                 'content': note_match.group('note_message').strip(),
+            }
+        elif warning_match:
+            return {
+                'type': 'note',
+                'timestamp': self.parse_timestamp(self.year_prefix, warning_match.group('timestamp')),
+                'timezone': warning_match.group('timezone'),
+                'content': warning_match.group('warning_message').strip(),
             }
         return None
 
@@ -268,6 +294,8 @@ class CSLogParser:
             print(f"Failed to insert log entry: {e}")
 
     def store_beacon_to_db(self, metadata: Dict):
+        #remove type from metadata
+        metadata.pop('type', None)
         try:
             # Sanity check to avoid adding duplicate beacons
             with self.lock:
