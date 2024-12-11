@@ -235,7 +235,8 @@ class BRLogParser:
                 timestamp=entry_data['timestamp'],
                 timezone=entry_data['timezone'],
                 type=entry_type,
-                parent_id=entry_data['parent_id']
+                parent_id=entry_data['parent_id'],
+                content=entry_data.get('content')
             ).one_or_none()
 
             if existing_entry is None:

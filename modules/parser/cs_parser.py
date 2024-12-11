@@ -275,7 +275,8 @@ class CSLogParser:
                     timestamp=entry_data['timestamp'],
                     timezone=entry_data['timezone'],
                     type=entry_type,
-                    parent_id=self.beacon_id
+                    parent_id=self.beacon_id,
+                    content=entry_data['content']
                 ).one_or_none()
 
                 if existing_entry is None:
