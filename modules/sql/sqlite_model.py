@@ -48,6 +48,8 @@ class Beacon(Base):
       timestamp = Column(DateTime, nullable=False)
       timezone = Column(String)
       entries = relationship("Entry", back_populates="parent",lazy='joined', join_depth=1)
+      # for OST
+      uid_str = Column(String, nullable=True, unique=True, index=True) # For OST C2 beacon tracking
       
       @property
       def joined(self):
@@ -91,6 +93,8 @@ class Entry(Base):
       content = Column(String)
       parent_id = Column(Integer, ForeignKey('beacon.id'))
       parent = relationship("Beacon", back_populates="entries", lazy="joined", join_depth=1)
+      # for OST
+      task_uid = Column(String, nullable=True, index=True) # For OST C2 task tracking
 
       #def __getattribute__(self, item):
       #      if item == "content" and self.type == EntryType.input:

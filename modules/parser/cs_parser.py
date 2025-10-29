@@ -47,6 +47,8 @@ class CSLogParser:
 
     @staticmethod
     def parse_beacon_log(filepath: str, db_path: str, debug: bool = False):
+        if filepath.endswith("weblog_443.log"):
+            return
         parser = CSLogParser(filepath, db_path, debug)
         parser.parse()
 
