@@ -44,5 +44,13 @@
             "console": "integratedTerminal",
             "args": ["-x br", "-w 1", "-m", "-l C:\\Users\\patri\\Downloads\\logs\\br", "-c config.yml"]
         },
+        {
+            "name": "Python: OC2 DEBUG",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/gimmelogs.py",
+            "console": "integratedTerminal",
+            "args": ["-x oc2", "-w 1", "-l C:\\Users\\patri\\Downloads\\logs\\json", "-c config.yml"]
+        },
     ]
 }

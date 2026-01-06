@@ -8,6 +8,7 @@ from modules.configuration import get_config, load_config, config
 from modules.utils import get_all_files
 from modules.parser.cs_parser import CSLogParser
 from modules.parser.br_parser import BRLogParser
+from modules.parser.oc2_parser import OC2LogParser
 
 
 """
@@ -28,13 +29,22 @@ def run(args):
     if config is None:
         log("No configuration loaded!", LogType.ERROR)
         exit(-1)
-        
-    parser = CSLogParser if args.parser == 'cs' else BRLogParser
+
+    parser, file_extension = None, None
+    if args.parser == 'cs':
+        parser = CSLogParser
+        file_extension = ".log"
+    elif args.parser == 'br':
+        parser = BRLogParser
+        file_extension = ".log"
+    elif args.parser == 'oc2':
+        parser = OC2LogParser
+        file_extension = ".json"
 
     init_db(args.database, args.verbose)
 
     if args.logs:
-        log_files = get_all_files(args.logs, ".log")
+        log_files = get_all_files(args.logs, file_extension)
         with futures.ThreadPoolExecutor(max_workers=args.worker) as executor:
             result_futures = list(map(lambda file: executor.submit(parser.parse_beacon_log, file, args.database), log_files))
             for idx, future in enumerate(futures.as_completed(result_futures)):
@@ -95,7 +105,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--minimize', action='store_true', help='Remove unnecessary data: keyloggs,beaconbot,sleep,exit,clear')
     parser.add_argument('-p', '--path', action=ValidatePath, help='Database and reports path: default=<currentpath>')
     parser.add_argument('-c', '--config', required=True, action=ValidateFile, help='A file with one IP-Range per line which should be ignored')
-    parser.add_argument('-x', '--parser', type=strip_input, default='cs', choices=['cs', 'br'], help='Choose the parser: default=cs')
+    parser.add_argument('-x', '--parser', type=strip_input, default='cs', choices=['cs', 'br', 'oc2'], help='Choose the parser: default=cs')
     
     try:
         args = parser.parse_args()
