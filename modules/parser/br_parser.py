@@ -33,6 +33,8 @@ class BRLogParser:
         self.is_accumulating_output = False
         # Lock for thread-safe database access
         self.lock = threading.Lock()
+        # Track number of entries added to database
+        self.entries_added = 0
         
     @staticmethod
     def extract_beacon_id_from_filename(filename: str) -> int:
@@ -46,6 +48,7 @@ class BRLogParser:
     def parse_beacon_log(filepath: str, db_path: str, debug: bool = False):
         parser = BRLogParser(filepath, db_path, debug)
         parser.parse()
+        return parser.entries_added
         
     @staticmethod
     def parse_timestamp(timestamp_str: str, format: str = "%Y/%m/%d %H:%M:%S %Z") -> datetime:
@@ -242,6 +245,7 @@ class BRLogParser:
             if existing_entry is None:
                 entry = Entry(**entry_data)
                 self.session.add(entry)
+                self.entries_added += 1
             else:
                 # Update the existing entry
                 existing_entry.ttp = entry_data.get('ttp')

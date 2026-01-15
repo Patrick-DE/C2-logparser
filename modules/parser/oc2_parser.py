@@ -28,11 +28,14 @@ class OC2LogParser:
         self.session: Session = session_factory()
         self.lock = threading.RLock()
         self.implant_uid_to_db_id: Dict[str, int] = {}
+        # Track number of entries added to database
+        self.entries_added = 0
 
     @classmethod
-    def parse_beacon_log(cls, filepath: str, db_path: str, debug: bool = False) -> None:
+    def parse_beacon_log(cls, filepath: str, db_path: str, debug: bool = False) -> int:
         parser = cls(filepath, db_path, debug)
         parser.parse()
+        return parser.entries_added
 
     @staticmethod
     def parse_timestamp(timestamp_str: str) -> Optional[datetime]:
@@ -312,6 +315,7 @@ class OC2LogParser:
                 db_entry = Entry(**entry_data)
                 self.session.add(db_entry)
                 self.session.commit()
+                self.entries_added += 1
         except Exception as exc:
             self.session.rollback()
             print(f"Failed to insert Entry for task {task_uid} (Beacon ID {db_beacon_id}): {exc}")

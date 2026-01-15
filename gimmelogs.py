@@ -45,10 +45,22 @@ def run(args):
 
     if args.logs:
         log_files = get_all_files(args.logs, file_extension)
+        total_entries_added = 0
+        
         with futures.ThreadPoolExecutor(max_workers=args.worker) as executor:
-            result_futures = list(map(lambda file: executor.submit(parser.parse_beacon_log, file, args.database), log_files))
-            for idx, future in enumerate(futures.as_completed(result_futures)):
-                printProgressBar(idx, len(result_futures), "Process logs")
+            file_to_future = {executor.submit(parser.parse_beacon_log, file, args.database): file for file in log_files}
+            
+            for idx, future in enumerate(futures.as_completed(file_to_future)):
+                printProgressBar(idx, len(file_to_future), "Process logs")
+                try:
+                    entries_added = future.result()
+                    total_entries_added += entries_added if entries_added else 0
+                except Exception as e:
+                    log(f"Error processing {file_to_future[future]}: {e}", LogType.ERROR)
+        
+        # Inform user if no entries were added from the entire ingestion
+        if total_entries_added == 0:
+            log(f"\nWarning: No elements were added to the database from the ingested files.", LogType.WARNING)
 
 
     if args.minimize:

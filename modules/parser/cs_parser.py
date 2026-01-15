@@ -24,6 +24,8 @@ class CSLogParser:
         self.is_accumulating_output = False
         # Lock for thread-safe database access
         self.lock = threading.Lock()
+        # Track number of entries added to database
+        self.entries_added = 0
 
     @staticmethod
     def extract_beacon_id_from_filename(filename: str) -> int:
@@ -48,9 +50,10 @@ class CSLogParser:
     @staticmethod
     def parse_beacon_log(filepath: str, db_path: str, debug: bool = False):
         if filepath.endswith("weblog_443.log"):
-            return
+            return 0
         parser = CSLogParser(filepath, db_path, debug)
         parser.parse()
+        return parser.entries_added
 
     @staticmethod
     def parse_timestamp(year_prefix: str, timestamp_str: str) -> datetime:
@@ -284,6 +287,7 @@ class CSLogParser:
                 if existing_entry is None:
                     entry = Entry(**entry_data)
                     self.session.add(entry)
+                    self.entries_added += 1
                 else:
                     # update the entry object
                     existing_entry.ttp = entry_data['ttp'] if 'ttp' in entry_data else None
