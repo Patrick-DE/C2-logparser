@@ -432,11 +432,10 @@ def remove_beacons_via_hostname(excluded_hostnames):
         # Get all beacons
         beacons = session.query(Beacon).all()
         
-        # Filter beacons with excluded hostnames
+        # Filter beacons with excluded hostnames (contains match)
         beacon_ids = [
             beacon.id for beacon in beacons 
-            # Check if hostname is in excluded_hostnames check only lower case
-            if beacon.hostname and beacon.hostname.lower() in [host.lower() for host in excluded_hostnames]
+            if beacon.hostname and any(host.lower() in beacon.hostname.lower() for host in excluded_hostnames)
         ]
 
         if beacon_ids:
