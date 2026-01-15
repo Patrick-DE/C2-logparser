@@ -458,3 +458,38 @@ def remove_beacons_via_hostname(excluded_hostnames):
     finally:
         session.close()
 
+def remove_beacons_via_user(excluded_users):
+    """Remove beacons and entries where user matches excluded users in config (contains match)"""
+    session = SESSION()
+    try:
+        if not excluded_users:
+            return
+
+        # Get all beacons
+        beacons = session.query(Beacon).all()
+        
+        # Filter beacons with excluded users (contains match)
+        beacon_ids = [
+            beacon.id for beacon in beacons 
+            if beacon.user and any(user.lower() in beacon.user.lower() for user in excluded_users)
+        ]
+
+        if beacon_ids:
+            # Remove related entries first
+            session.query(Entry).filter(
+                Entry.parent_id.in_(beacon_ids)
+            ).delete(synchronize_session=False)
+
+            # Remove beacons
+            session.query(Beacon).filter(
+                Beacon.id.in_(beacon_ids)
+            ).delete(synchronize_session=False)
+
+            session.commit()
+            
+    except Exception as e:
+        session.rollback()
+        log(f"remove_via_user() Failed: {e}", "e")
+        raise e
+    finally:
+        session.close()

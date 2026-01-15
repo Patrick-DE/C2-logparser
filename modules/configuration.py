@@ -32,6 +32,7 @@ class Exclusions:
     internal: List[str]
     external: List[str]
     hostnames: List[str]
+    users: List[str]
     commands: List[str|AndCommand|RegexCommand]
 
 @dataclass
