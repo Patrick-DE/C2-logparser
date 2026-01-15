@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import time
 from typing import Dict, List
@@ -432,10 +433,10 @@ def remove_beacons_via_hostname(excluded_hostnames):
         # Get all beacons
         beacons = session.query(Beacon).all()
         
-        # Filter beacons with excluded hostnames (contains match)
+        # Filter beacons with excluded hostnames (regex match)
         beacon_ids = [
             beacon.id for beacon in beacons 
-            if beacon.hostname and any(host.lower() in beacon.hostname.lower() for host in excluded_hostnames)
+            if beacon.hostname and any(re.search(pattern, beacon.hostname, re.IGNORECASE) for pattern in excluded_hostnames)
         ]
 
         if beacon_ids:
@@ -468,10 +469,10 @@ def remove_beacons_via_user(excluded_users):
         # Get all beacons
         beacons = session.query(Beacon).all()
         
-        # Filter beacons with excluded users (contains match)
+        # Filter beacons with excluded users (regex match)
         beacon_ids = [
             beacon.id for beacon in beacons 
-            if beacon.user and any(user.lower() in beacon.user.lower() for user in excluded_users)
+            if beacon.user and any(re.search(pattern, beacon.user, re.IGNORECASE) for pattern in excluded_users)
         ]
 
         if beacon_ids:

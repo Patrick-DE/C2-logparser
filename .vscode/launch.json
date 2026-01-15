@@ -10,7 +10,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args":["-w 1", "-l ./", "-c config.yml", "-m"]
+            "args": [
+                "-w 1",
+                "-l ./",
+                "-c config.yml",
+                "-m"
+            ]
         },
         {
             "name": "Python: Dbg-Report",
@@ -18,7 +23,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args":["-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\cs", "-c config.yml", "-m"]
+            "args": [
+                "-w 1",
+                "-p C:\\Users\\patri\\Downloads\\logs\\cs",
+                "-c config.yml",
+                "-m"
+            ]
         },
         {
             "name": "Python: MultiThread",
@@ -26,7 +36,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-w 16", "-p ./", "-c config.yml", "-m"]
+            "args": [
+                "-w 16",
+                "-p ./",
+                "-c config.yml",
+                "-m"
+            ]
         },
         {
             "name": "Python: CS DEBUG",
@@ -34,7 +49,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-x cs", "-w 1", "-m", "-l C:\\Users\\patri\\Downloads\\logs\\cs\\sc5", "-c config.yml"]
+            "args": [
+                "-x cs",
+                "-w 1",
+                "-m",
+                "-l C:\\Users\\patri\\Downloads\\logs\\cs\\sc5",
+                "-c config.yml"
+            ]
         },
         {
             "name": "Python: BR DEBUG",
@@ -42,7 +63,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-x br", "-w 1", "-m", "-l C:\\Users\\patri\\Downloads\\logs\\br", "-c config.yml"]
+            "args": [
+                "-x br",
+                "-w 1",
+                "-m",
+                "-l C:\\Users\\patri\\Downloads\\logs\\br",
+                "-c config.yml"
+            ]
         },
         {
             "name": "Python: OC2 DEBUG",
@@ -50,7 +77,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-x oc2", "-w 1", "-l C:\\Users\\patri\\Downloads\\logs\\json", "-c config.yml"]
+            "args": [
+                "-x oc2",
+                "-w 1",
+                "-l C:\\Users\\patri\\Downloads\\logs\\json",
+                "-c config.yml"
+            ]
         },
         {
             "name": "Python: Ingest1",
@@ -58,7 +90,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\CS3-MultipurposeC2server", "-c config.yml"]
+            "args": [
+                "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05",
+                "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\CS3-MultipurposeC2server",
+                "-c config.yml"
+            ]
         },
         {
             "name": "Python: Ingest2",
@@ -66,7 +102,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-x oc2", "-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\OST-MultipurposeC2server", "-c config.yml"]
+            "args": [
+                "-x oc2",
+                "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05",
+                "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\OST-MultipurposeC2server",
+                "-c config.yml"
+            ]
         },
         {
             "name": "Python: Report",
@@ -74,7 +115,12 @@
             "request": "launch",
             "program": "${workspaceFolder}/gimmelogs.py",
             "console": "integratedTerminal",
-            "args": ["-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-c config.yml"]
+            "args": [
+                "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05",
+                "-m",
+                "-c config.yml",
+                "-r"
+            ]
         },
     ]
 }

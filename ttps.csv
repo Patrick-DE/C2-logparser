@@ -8,6 +8,7 @@
  purge;NP;Credential Access;T1558;Steal or Forge Kerberos Tickets;Purge all Kerberos tickets from the current logon session
  tgtdeleg;NP;Credential Access;T1558;Steal or Forge Kerberos Tickets;Abuses the Kerberos GSS-API to retrieve a usable TGT for the current user without needing elevation on the host
  triage;NP;Credential Access;T1558;Steal or Forge Kerberos Tickets;Output a table of the current user's Kerberos tickets
+ connect;IF;Command and Control;T1071;Application Layer Protocol;Establish a connection to a remote host
 [REDACTED];AO;Defense Evasion, Persistence, Privilege Escalation;T1078;Valid Accounts;Valid accounts were used in order to either gain initial access, establish persistence, or privilege escalate
 \C$;NP;Lateral Movement;T1077;Windows Admin Shares;Interact with file shares and collect credentials, lateral move with administrative rights, via execute scheduled tasks or service execution
 aadprt;NP;Credential Access;T1552.004;Unsecured Credentials: Cloud Instance Metadata API;Extract Azure AD PRT tokens from the machine to use for example in roadtools
@@ -26,6 +27,7 @@ Defense Evasion;NP;Execution;T1059;Command-Line Interface;Change directory withi
 Certify.exe ;NP;Defense Evasion, Privilege Escalation;T1055.012;Process Injection: Process Hollowing;Inject code into processes in order to evade process-based defenses as well as possibly elevate privileges
 File and Directory Permissions Modification;NP;Command and Control;T1102.002;Bidirectional Communication;Check if beacons are alive
 Change permissions of files and folders to bypass access controls.;NP;Credential Access;T1539;Steal Web Session Cookie;Dump credentials, bookmarks or history data from all common browsers
+chromeo;IF;Credential Access;T1539;Steal Web Session Cookie;Dump credentials, bookmarks or history data from all common browsers
 chromiumkeydump;IF;Credential Access;T1539;Steal Web Session Cookie;Dump credentials, bookmarks or history data from all common browsers
 copy;NP;Execution;T1059;Command-Line Interface;Copy files from one directory to another directory or share
 CredEnum;NP;Credential Access;T1003;OS Credential Dumping;Dump credential on the local system and can also be used with low privileges
@@ -38,11 +40,13 @@ detect-hooks ;IF;Defense Evasion;T1562.001;Impair Defenses: Disable or Modify To
 dir;NP;Discovery;T1083;File and Directory Discovery;Enumerate files and directories to find interesting files
 domainenum;NP;Discovery;T1482;Domain Trust Discovery;Identify information about the forest and connected domains
 Domaininfo;NP;Discovery;T1482;Domain Trust Discovery;Identify information about the forest and connected domains
+domainname;NP;Discovery;T1482;Domain Trust Discovery;Identify information about the forest and connected domains
 download;AO;Exfiltration;T1005;Data from Local System;Steal data to gain more information about the target
 driversigs;IF;Discovery;T1007;System Service Discovery;Enumerate installed services Imagepaths to check the signing cert against known AV/EDR vendors
 drives;IF;Discovery;T1083;File and Directory Discovery;show drives of the system
 dumpert;NP;Credential Access;T1003,T1055,T1093;Credential Dumping;Gather credential stored on the local system, with the goal of receiving high privilege targets or cracking the received passwords
 dumpert_download;AO;Exfiltration;T1005;Data from Local System;Steal dumped credentails from the system
+elevate;IF;Privilege Escalation;T1078;Valid Accounts;Elevate privileges to SYSTEM
 enum_filter_driver;IF;Discovery;T1012;Query Registry;Enumerate filter drivers
 enumLocalSessions;NP;Discovery;T1033;System Owner/User Discovery;Enumerate currently attached user sessions both local and over RDP
 enumsigning;IF;Discovery;T1007;System Service Discovery;Enumerate if the server has singing enabled
@@ -55,6 +59,7 @@ forward port;NP;Command and Control;T1572;Protocol Tunneling;Forwarding a port f
 get scheduled tasks;IF;Execution, Persistence, Privilege Escalation;T1054;Scheduled Task/Job;Get the scheduled tasks to verify persistence or show available tasks for privilege escalation
 get_password_policy;IF;Discovery;T1201;Password Policy Discovery;Get target server or domain's configured password policy and lockouts
 GetMachineAccountQuota;IF;Discovery;T1082;System Information Discovery;Get the quote of how many machine accounts can be created in the domain. Even if it says above 0 it is still possible that the persmissions are sufficient to create a machine account
+getsystem;IF;Privilege Escalation;T1078;Valid Accounts;Elevate privileges to SYSTEM
 getuid;NP;Discovery;T1087;Account Discovery;Get the unique id for the user, in order to identify which user is currently used
 gpresult ;IF;Discovery;T1615;Group Policy Discovery;Identify information about the GPOs applied to the given host
 Grouper2.exe;NP;Lateral Movement;T1210;Exploitation of Remote Services;Find vulnerabilities in AD Group Policy
@@ -105,11 +110,11 @@ netGroupList;IF;Discovery;T1087;Account Discovery;List groups from the default o
 netGroupListMembers;IF;Discovery;T1087;Account Discovery;Adds, displays, or modifies global groups on the system. In this case we tried to display all available groups
 netLocalGroupList;IF;Discovery;T1087;Account Discovery;List local groups from the local or specified computer
 netLocalGroupListMembers ;IF;Discovery;T1087;Account Discovery;Adds, displays, or modifies global groups on the system. In this case we tried to display all available groups
-netLocalGroupListMembers2;IF;Discovery;T1087;Account Discovery;Modified version of netLocalGroupListMembers that supports BOFHound
+netLocalGroupListMembers2;IF;Discovery;T1087;Account Discovery;Modified version ofï¿½netLocalGroupListMembersï¿½that supports BOFHound
 netloggedon;IF;Discovery;T1087;Account Discovery;Return users logged on the local or remote computer
-netloggedon2;IF;Discovery;T1087;Account Discovery;Modified version of netloggedon that supports BOFHound
+netloggedon2;IF;Discovery;T1087;Account Discovery;Modified version ofï¿½netloggedonï¿½that supports BOFHound
 netsession;NP;Discovery;T1033;System Owner/User Discovery;Get all user and their sessions on the current machine
-netsession2;NP;Discovery;T1033;System Owner/User Discovery;Modified version of netsession that supports BOFHound
+netsession2;NP;Discovery;T1033;System Owner/User Discovery;Modified version ofï¿½netsessionï¿½that supports BOFHound
 netshares;NP;Discovery;T1135;Network Share Discovery;Displays information about all of the resources that are shared on the local computer
 netstat;NP;Discovery;T1049;System Network Connections Discovery;Get a listing of network connections to or from the compromised system they are currently accessing or from remote systems by querying for information over the network
 nettime;IF;Discovery;T1082;System Information Discovery;Display time on remote computer
@@ -220,15 +225,18 @@ WinPeas;NP;Process Injection;T1082;System Information Discovery;Get a lot of inf
 wmi_query;NP;Discovery;T1047;Windows Management Instrumentation;Run a wmi query and display results in CSV format
 wts_enum_remote_processes;NP;Discovery;T1057;Process Discovery;Enumerate remote processes using WTS APIs, also useful to check if you have access to a system
 zipper;AO;Collection;T1560;Archive Collected Data;Archive the file in order to reduce the size during exfiltration
-set malloc;IF;Defense Evasion;"T1631.001	";Process Injection: Ptrace System Calls;Inject code into a running process to evade defenses
-set threadex;NP;Defense Evasion;T1055 ;Process Injection;"Modify thread execution methods to inject code into remote processes, evading detection
-"
+set malloc;IF;Defense Evasion;"T1631.001";Process Injection: Ptrace System Calls;Inject code into a running process to evade defenses
+set threadex;NP;Defense Evasion;T1055 ;Process Injection;"Modify thread execution methods to inject code into remote processes, evading detection"
 set child;NP;Defense Evasion;T1055;Process Injection;Configure child process settings to evade detection mechanisms.
 sleep;NP;Defense Evasion;T1029;Scheduled Task/Job;Introduce delays to evade detection and analysis.
 coffexec;NP;Defense Evasion;T1055;Process Injection;Execute COFF files in memory to avoid writing to disk.
 PersistUserRegKey;IF;Persistence;T1547.001;Registry Run Keys/Startup Folder;Establish persistence via user-level registry keys.
 sysinfo;IF;Discovery;T1082;System Information Discovery;Gather system information for situational awareness.
 userinfo;IF;Discovery;T1087.001;Local Account Discovery;Enumerate local user accounts.
+userenum;IF;Discovery;T1087.001;Local Account Discovery;Enumerate local user accounts.
 exit_process;AO;Defense Evasion;T1102.001;Web Services;Terminate processes to evade detection.
 EnumSystemPath;IF;Discovery;T1083;File and Directory Discovery;Enumerate system paths and directories.
 lookup;IF;Discovery;T1083;File and Directory Discovery;Search for specific files or directories.
+winver;IF;Discovery;T1082;System Information Discovery;Gather system information for situational awareness.
+WdToggle;NP;Credential Access;T1552.001;Unsecured Credentials: Credentials in Files;Path LSASS WDIGEST to store credentials in plain text.
+Tasked beacon to;NP;Command and Control;T1071;Application Layer Protocol;The operator asks the malware to execute a payload on the compromised system.

@@ -46,10 +46,11 @@ class TTPSearcher():
     def read_ttps(self):
         a_file = open(self.path)
         for line in a_file:
-            if line.startswith("#"):
+            line = line.strip()
+            if line.startswith("#") or not line:
                 continue
 
-            arr = line.split(self.seperator)
+            arr = [field.strip() for field in line.split(self.seperator)]
             self.ttps.append(arr)
         
     def verify_path(self):
