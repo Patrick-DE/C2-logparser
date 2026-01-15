@@ -69,7 +69,7 @@ def run(args):
         remove_via_ip(config.exclusions.internal, False)
         remove_beacons_via_hostname(config.exclusions.hostnames)
 
-    if args.output:
+    if args.report:
         report_input_task(args.output)
         report_dl_ul(args.output)
         report_all_beacons_spawned(args.output)
@@ -116,6 +116,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--logs', action=ValidatePath, help='Directory path containing the CS logs')
     parser.add_argument('-m', '--minimize', action='store_true', help='Remove unnecessary data: keyloggs,beaconbot,sleep,exit,clear')
     parser.add_argument('-p', '--path', action=ValidatePath, help='Database and reports path: default=<currentpath>')
+    parser.add_argument('-r', '--report', action='store_true', help='Generate reports from database')
     parser.add_argument('-c', '--config', required=True, action=ValidateFile, help='A file with one IP-Range per line which should be ignored')
     parser.add_argument('-x', '--parser', type=strip_input, default='cs', choices=['cs', 'br', 'oc2'], help='Choose the parser: default=cs')
     
@@ -129,10 +130,10 @@ if __name__ == "__main__":
     if (not args.logs and not args.path):
         parser.print_help(sys.stderr)
         log("-----Examples-----", LogType.WARNING)
-        log("Recommended:        python3 gimmelogs.py -l <LogDir> -c config.yml -m", LogType.WARNING)
-        log("Minimum:            python3 gimmelogs.py -l <LogDir>", LogType.WARNING)
-        log("Full:               python3 gimmelogs.py -l <LogDir> -c config.yml -m -p <OutputDir> -w 15", LogType.WARNING)
-        log("Generate reports:   python3 gimmelogs.py -p <DBDir> -c config.yml -m", LogType.WARNING)
+        log("Ingest only:        python3 gimmelogs.py -l <LogDir> -c config.yml", LogType.WARNING)
+        log("Ingest + reports:   python3 gimmelogs.py -l <LogDir> -c config.yml -r", LogType.WARNING)
+        log("Full:               python3 gimmelogs.py -l <LogDir> -c config.yml -m -r -p <OutputDir> -w 15", LogType.WARNING)
+        log("Reports only:       python3 gimmelogs.py -p <DBDir> -c config.yml -r", LogType.WARNING)
         exit()
 
     if args.logs and not args.path:
