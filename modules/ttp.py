@@ -91,6 +91,7 @@ def report_tiber(output):
     entries.sort(key=sort_on_timestamp)
     rows = pre
     
+    tiber = None
     for entry in entries:
         tiber = {"Phase":"", "Tactic":"", "Technique ID":"", "Technique Name":"", "Executed on":"", "Operational Guidance":"", "Goal":"", "Result":"", "Thread Actor":"", "Related Findings(s)":"", "Date":"", "Time":""}
         tiber["Executed on"] = entry.parent.hostname if entry.parent.hostname else "N/A"
@@ -99,4 +100,6 @@ def report_tiber(output):
         tiber["Operational Guidance"] = excel_save(redact(entry.content))
         tiber = ttp.add_ttp(tiber)     
         rows.append(tiber.values())
-    write_to_csv(output+"\\tiber-report.csv", tiber.keys(), rows)
+
+    if tiber:
+        write_to_csv(output+"\\tiber-report.csv", tiber.keys(), rows)

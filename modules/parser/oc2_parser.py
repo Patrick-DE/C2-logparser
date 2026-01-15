@@ -101,7 +101,7 @@ class OC2LogParser:
             print(f"An unexpected error occurred while reading {self.filepath}: {exc}")
         finally:
             self.close()
-            print(f"Finished parsing file: {self.filename}")
+            # print(f"Finished parsing file: {self.filename}")
 
     def _process_event(
         self, line_num: int, timestamp: datetime, log_data: Dict

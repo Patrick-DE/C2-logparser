@@ -52,5 +52,29 @@
             "console": "integratedTerminal",
             "args": ["-x oc2", "-w 1", "-l C:\\Users\\patri\\Downloads\\logs\\json", "-c config.yml"]
         },
+        {
+            "name": "Python: Ingest1",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/gimmelogs.py",
+            "console": "integratedTerminal",
+            "args": ["-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\CS3-MultipurposeC2server", "-c config.yml"]
+        },
+        {
+            "name": "Python: Ingest2",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/gimmelogs.py",
+            "console": "integratedTerminal",
+            "args": ["-x oc2", "-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-l C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05\\OST-MultipurposeC2server", "-c config.yml"]
+        },
+        {
+            "name": "Python: Report",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/gimmelogs.py",
+            "console": "integratedTerminal",
+            "args": ["-w 1", "-p C:\\Users\\patri\\Downloads\\logs\\logs_2025-12-05", "-c config.yml"]
+        },
     ]
 }
