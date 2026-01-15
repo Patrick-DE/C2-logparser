@@ -130,10 +130,10 @@ if __name__ == "__main__":
     if (not args.logs and not args.path):
         parser.print_help(sys.stderr)
         log("-----Examples-----", LogType.WARNING)
-        log("Ingest only:        python3 gimmelogs.py -l <LogDir> -c config.yml", LogType.WARNING)
-        log("Ingest + reports:   python3 gimmelogs.py -l <LogDir> -c config.yml -r", LogType.WARNING)
-        log("Full:               python3 gimmelogs.py -l <LogDir> -c config.yml -m -r -p <OutputDir> -w 15", LogType.WARNING)
-        log("Reports only:       python3 gimmelogs.py -p <DBDir> -c config.yml -r", LogType.WARNING)
+        log("Ingest:        python3 gimmelogs.py -l <LogDir> -c config.yml", LogType.WARNING)
+        log("Report:        python3 gimmelogs.py -p <DBDir> -c config.yml -r", LogType.WARNING)
+        log("Minimize:      python3 gimmelogs.py -p <DBDir> -c config.yml -m", LogType.WARNING)
+        log("Full:          python3 gimmelogs.py -l <LogDir> -c config.yml -m -r -p <OutputDir> -w 15", LogType.WARNING)
         exit()
 
     if args.logs and not args.path:
