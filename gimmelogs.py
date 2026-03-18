@@ -43,8 +43,8 @@ def run(args):
 
     init_db(args.database, args.verbose)
 
-    if args.logs:
-        log_files = get_all_files(args.logs, file_extension)
+    if args.ingest:
+        log_files = get_all_files(args.ingest, file_extension)
         total_entries_added = 0
         
         with futures.ThreadPoolExecutor(max_workers=args.worker) as executor:
@@ -114,12 +114,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parse CobaltStrike logs and store them in a DB to create reports')
     parser.add_argument('-w', '--worker', type=int, default=10, help='Set amount of workers: default=10')
     parser.add_argument('-v', '--verbose', action='store_true', help='Activate debugging')
-    parser.add_argument('-l', '--logs', action=ValidatePath, help='Directory path containing the CS logs')
+    parser.add_argument('-i', '--ingest', action=ValidatePath, help='Directory path containing the CS logs')
     parser.add_argument('-m', '--minimize', action='store_true', help='Remove unnecessary data: keyloggs,beaconbot,sleep,exit,clear')
     parser.add_argument('-p', '--path', action=ValidatePath, help='Database and reports path: default=<currentpath>')
     parser.add_argument('-r', '--report', action='store_true', help='Generate reports from database')
     parser.add_argument('-c', '--config', required=True, action=ValidateFile, help='A file with one IP-Range per line which should be ignored')
-    parser.add_argument('-x', '--parser', type=strip_input, default='cs', choices=['cs', 'br', 'oc2'], help='Choose the parser: default=cs')
+    parser.add_argument('-x', '--parser', type=strip_input, choices=['cs', 'br', 'oc2'], help='Choose the parser: default=cs')
     
     try:
         args = parser.parse_args()
@@ -127,18 +127,23 @@ if __name__ == "__main__":
         parser.print_help(sys.stderr)
         exit()
 
-    # either path and parser or database
-    if (not args.logs and not args.path):
+    # either ingest path or existing DB path required
+    if (not args.ingest and not args.path):
         parser.print_help(sys.stderr)
         log("-----Examples-----", LogType.WARNING)
-        log("Ingest:        python3 gimmelogs.py -l <LogDir> -c config.yml", LogType.WARNING)
-        log("Report:        python3 gimmelogs.py -p <DBDir> -c config.yml -r", LogType.WARNING)
+        log("Ingest:        python3 gimmelogs.py -i <LogDir> -x cs -c config.yml", LogType.WARNING)
+        log("Report:        python3 gimmelogs.py -r -p <DBDir> -c config.yml", LogType.WARNING)
         log("Minimize:      python3 gimmelogs.py -p <DBDir> -c config.yml -m", LogType.WARNING)
-        log("Full:          python3 gimmelogs.py -l <LogDir> -c config.yml -m -r -p <OutputDir> -w 15", LogType.WARNING)
+        log("Full:          python3 gimmelogs.py -i <LogDir> -x cs -c config.yml -m -r -p <OutputDir> -w 15", LogType.WARNING)
         exit()
 
-    if args.logs and not args.path:
-        args.path = args.logs
+    if args.ingest and not args.parser:
+        parser.print_help(sys.stderr)
+        log("The -x/--parser argument is required when using -i/--ingest", LogType.ERROR)
+        exit()
+
+    if args.ingest and not args.path:
+        args.path = args.ingest
         
     args.database = os.path.join(args.path, 'log.db')
     args.output = os.path.join(args.path, 'reports')
