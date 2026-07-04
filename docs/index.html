@@ -3,50 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="C2 Log-Parser - Parses C2 log files, stores them in a SQLite database, and generates CSV reports for red team engagements.">
-    <title>C2 Log-Parser</title>
+    <meta name="description" content="C2 Log-Parser - Modular parser for C2 frameworks. Unified structure for TIBER/TLPT analysis and reporting.">
+    <title>C2 Log-Parser | Unified Red Team Reporting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="background-glow"></div>
     <header class="header">
         <div class="container">
             <h1 class="logo">C2 Log-Parser</h1>
-            <p class="subtitle">Streamline your red team reporting.</p>
+            <p class="subtitle">Streamlined reporting for modern adversaries.</p>
         </div>
     </header>
 
     <main class="container">
         <section class="hero">
+            <h2 class="hero-title">One structure. <span class="gradient-text">Infinite analysis.</span></h2>
             <p class="description">
-                Parses C2 log files, stores them in a SQLite database, and generates comprehensive CSV reports. 
-                Built for Cobalt Strike, Brute Ratel, and Outflank C2 (OC2).
+                TIBER and TLPT engagements require meticulous, granular documentation of every operator action. Consolidating disparate logs from different Command & Control frameworks is tedious and error-prone.
+                <br><br>
+                <strong>C2 Log-Parser</strong> is a modular, extensible parser that ingests logs directly from your C2s and provides a single, unified structure for comprehensive analysis and automated report generation.
             </p>
             <div class="actions">
                 <a href="https://github.com/Patrick-DE/C2-logparser" class="btn btn-primary">View on GitHub</a>
+                <a href="https://github.com/Patrick-DE/C2-logparser/releases" class="btn btn-secondary">Download Release</a>
             </div>
         </section>
 
         <section class="features">
             <div class="feature-card">
+                <div class="feature-icon">📥</div>
                 <h3>Ingest</h3>
-                <p>Parse log files seamlessly and store them securely in a structured SQLite database.</p>
+                <p>Parse logs from Cobalt Strike, Brute Ratel, and Outflank C2 (OC2). Store them securely in a structured SQLite database.</p>
             </div>
             <div class="feature-card">
+                <div class="feature-icon">🧹</div>
                 <h3>Minimize</h3>
-                <p>Remove clutter automatically. Exclude specific beacons using a simple configuration file.</p>
+                <p>Remove operational clutter automatically. Exclude specific beacons, IPs, or hostnames using a simple configuration file.</p>
             </div>
             <div class="feature-card">
+                <div class="feature-icon">📊</div>
                 <h3>Report</h3>
-                <p>Generate detailed CSV reports ready for delivery, including TIBER-EU formats.</p>
+                <p>Generate detailed CSV reports ready for client delivery, fully supporting TIBER-EU and MITRE ATT&CK mappings.</p>
             </div>
         </section>
 
         <section class="setup">
             <h2>Quick Start</h2>
+            <p class="setup-desc">Download the standalone binary from the releases page, or run it via Python:</p>
             <div class="code-block">
+                <div class="code-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
                 <pre><code># Setup environment
 python3 -m venv venv
 source venv/bin/activate
