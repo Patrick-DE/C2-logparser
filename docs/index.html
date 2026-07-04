@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="C2 Log-Parser - Parses C2 log files, stores them in a SQLite database, and generates CSV reports for red team engagements.">
+    <title>C2 Log-Parser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">C2 Log-Parser</h1>
+            <p class="subtitle">Streamline your red team reporting.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <p class="description">
+                Parses C2 log files, stores them in a SQLite database, and generates comprehensive CSV reports. 
+                Built for Cobalt Strike, Brute Ratel, and Outflank C2 (OC2).
+            </p>
+            <div class="actions">
+                <a href="https://github.com/Patrick-DE/C2-logparser" class="btn btn-primary">View on GitHub</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <h3>Ingest</h3>
+                <p>Parse log files seamlessly and store them securely in a structured SQLite database.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Minimize</h3>
+                <p>Remove clutter automatically. Exclude specific beacons using a simple configuration file.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Report</h3>
+                <p>Generate detailed CSV reports ready for delivery, including TIBER-EU formats.</p>
+            </div>
+        </section>
+
+        <section class="setup">
+            <h2>Quick Start</h2>
+            <div class="code-block">
+                <pre><code># Setup environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Full pipeline: ingest, minimize, report
+python3 gimmelogs.py -x cs -i ./logs -c config.yml -m -r -p ./results</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 C2 Log-Parser. Open source under the MIT License.</p>
+        </div>
+    </footer>
+</body>
+</html>
